@@ -298,7 +298,6 @@ void addlist(lista **head, unsigned char v, int r){ //Adiciona item na lista
 void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e cria uma uma lista binaria com eles
     lista *primeiro, *segundo, *aux = *head;
     
-
     while((*head)->prox != NULL){
         primeiro = remover_inicio(head); //Pega o primeiro item da lista
         //Como o primeiro item foi removido da lista o segundo vira o primeiro
@@ -333,7 +332,7 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
     }
 }
 
-void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list){ //Ainda vamos mudar isso
+void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list){
     int profundidade;
     char **dicionario;
     char *codificado;
