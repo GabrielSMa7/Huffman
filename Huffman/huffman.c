@@ -194,8 +194,8 @@ void criar_dicionario(char **dicionario, arvore *raiz, char *caminho, int profun
 }
 
 void escrever_arvore(FILE *arquivo, arvore *raiz, int *tam){
-    if(raiz->dir == NULL && raiz->esq == NULL){ //
-        if((*((unsigned char*)raiz->chr) == '*' || *((unsigned char*)raiz->chr) == '\\')){
+    if(raiz->dir == NULL && raiz->esq == NULL){ //Olha se o nó atual é folha ou não
+        if((*((unsigned char*)raiz->chr) == '*' || *((unsigned char*)raiz->chr) == '\\')){ //Caso seja folha e o char for * ou \ ele escreve um \ antes como escape
             unsigned char barra = '\\';
             fwrite(&barra, sizeof(unsigned char), 1, arquivo);
             (*tam)++;
@@ -216,19 +216,19 @@ void escrever_arvore(FILE *arquivo, arvore *raiz, int *tam){
 arvore* ler_arvore(unsigned char *buffer, int tamanho){
     static int posicao = 0;
     
-    if (posicao >= tamanho) {
+    if (posicao >= tamanho){
         return NULL;
     }
 
-    arvore *no = criar_arvore('\0', NULL, NULL);
+    arvore *no = criar_arvore('\0', NULL, NULL); //Cria uma árvore sem char
 
     no->rep = malloc(sizeof(int));
     *((int*)no->rep) = 1;
 
     if (buffer[posicao] == '*'){
         posicao++;
-        no->chr = malloc(sizeof(unsigned char));
-        *(unsigned char*)no->chr = '*';
+        no->chr = malloc(sizeof(unsigned char)); //Aloca tamanho de char
+        *(unsigned char*)no->chr = '*'; //Muda o char da árvore para *
         no->esq = ler_arvore(buffer, tamanho);
         no->dir = ler_arvore(buffer, tamanho);
     } 
@@ -241,7 +241,7 @@ arvore* ler_arvore(unsigned char *buffer, int tamanho){
             }
         }
         no->chr = malloc(sizeof(unsigned char));
-        *(unsigned char*)no->chr = buffer[posicao];
+        *(unsigned char*)no->chr = buffer[posicao]; //Muda o char da árvore para o char do buffer
         posicao++;
     }
 
@@ -309,7 +309,7 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
         new->raiz = criar_arvore('*', primeiro->raiz, segundo->raiz); //Cria uma arvore que tem o primeiro e segundo item como folhas
 
         new->raiz->rep = malloc(sizeof(int));
-        *((int*)new->raiz->rep) = *((int*)primeiro->raiz->rep) + *((int*)segundo->raiz->rep);
+        *((int*)new->raiz->rep) = *((int*)primeiro->raiz->rep) + *((int*)segundo->raiz->rep); //O novo valor de rep é a soma dos rep do primeiro intem e do segundo
 
         if(*head == NULL || *((int*)(*head)->raiz->rep) > *((int*)new->raiz->rep)){
             new->prox = *head;
@@ -324,6 +324,10 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
             aux->prox = new;
         }
 
+        free(primeiro->raiz->rep);
+        free(segundo->raiz->rep);
+        free(primeiro->raiz);
+        free(segundo->raiz);
         free(primeiro); //Free para evitar memory leak
         free(segundo);
     }
@@ -363,7 +367,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     }
     
     current = fread(buffer, 1, filesize, file); //Lê o conteudo do arquivo e salva no buffer
-    if(current != filesize){
+    if(current != filesize){ //tratamento de erro
         perror("Erro ao ler o arquivo: ");
         free(buffer);
         fclose(file);
@@ -372,17 +376,17 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
 
     unsigned int repeticoes[TAM] = {0};
 
-    for(long i=0; i < filesize; i++){ //Adiciona o conteudo do arquivo na lista
+    for(long i=0; i < filesize; i++){ //Salva o numero de repetições de cada caracter
         repeticoes[buffer[i]]++;
     }
 
-    for(int i = 0; i < TAM; i++){
+    for(int i = 0; i < TAM; i++){ //Adiciona o conteudo do arquivo na lista
         if(repeticoes[i] > 0){
             addlist(list, i, repeticoes[i]);
         }
     }
 
-    if(*list == NULL){
+    if(*list == NULL){ //tratamento de erro
         perror("Falha ao criar a lista");
         free(buffer);
         fclose(file);
@@ -392,7 +396,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     //----------------------------
     //Compactação
 
-    arvore_de_huffman(list);
+    arvore_de_huffman(list); //Cria a arvore de huffman
 
     profundidade = altura((*list)->raiz);
 
@@ -403,8 +407,8 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     //----------------------------
     //Escrevendo o arquivo
 
-    new_file = fopen(novoarquivo, "wb");
-    if(new_file == NULL) {
+    new_file = fopen(novoarquivo, "wb"); //Abre o novo arquivo em modo binario
+    if(new_file == NULL){ //tratamento de erro
         perror("Erro ao escrever o arquivo");
         free(buffer);
         for(int i = 0; i < TAM; i++) {
@@ -419,10 +423,8 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     fseek(new_file, sizeof(uint16_t), SEEK_SET);
 
     int sobra = 0;
-    escrever_arvore(new_file, (*list)->raiz, &sobra);
+    escrever_arvore(new_file, (*list)->raiz, &sobra); //Escreve a árvore no novo arquivo
     
-    
-    int porcent;
     for(long i = 0; i < filesize; i++){
         char *code = dicionario[buffer[i]];
         for(long j = 0; code[j]; j++){
@@ -467,31 +469,31 @@ void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore
 
     for(long i = tamanho + 2; i < filesize; i++){
         byte = buffer[i];
-        if(i < filesize - 1){
+        if(i < filesize - 1){ //Verifica se não é o ultimo byte do arquivo
             for (int i = 7; i >= 0; i--){
-                if ((byte & (1 << i)) != 0){
+                if ((byte & (1 << i)) != 0){ //Se o bite for 1 ele vai pra direita
                     aux = aux->dir;
                 } 
-                else {
+                else { //Se o bite for 1 ele vai pra direita
                     aux = aux->esq;
                 }
-                if (aux->esq == NULL && aux->dir == NULL){
+                if (aux->esq == NULL && aux->dir == NULL){ //Verifica se é folha
                     fwrite(((unsigned char*)aux->chr), 1, 1, new_file);
-                    aux = huff; 
+                    aux = huff; //Volta pra raiz
                 }
             }
         }
         else{
-            for (int i = 7; i >= trash; i--){
-                if((byte & (1 << i)) != 0){
+            for (int i = 7; i >= trash; i--){ //Caso seja o ultimo byte ele só ler até o trash
+                if((byte & (1 << i)) != 0){ //Se o bite for 1 ele vai pra direita
                     aux = aux->dir;
                 } 
-                else{
+                else{ //Se o bite for 1 ele vai pra direita
                     aux = aux->esq;
                 }
-                if (aux->esq == NULL && aux->dir == NULL){
+                if (aux->esq == NULL && aux->dir == NULL){ //Verifica se é folha
                     fwrite(((unsigned char*)aux->chr), 1, 1, new_file);
-                    aux = huff; 
+                    aux = huff; //Volta para raiz
                 }
             }
         }
@@ -527,8 +529,8 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda v
         return;
     }
 
-    current = fread(buffer, 1, filesize, file);
-    if(current != filesize){
+    current = fread(buffer, 1, filesize, file); //Salva os dados do arquivo no buffer
+    if(current != filesize){ //Tratamento de erro
         perror("Erro ao ler o arquivo: ");
         free(buffer);
         fclose(file);
@@ -541,14 +543,16 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda v
 
     huff = ler_arvore(buffer + 2, tamanho);
 
-    new_file = fopen(novoarquivo, "wb");
-    if (new_file == NULL) {
+    //Escrever o arquivo
+    
+    new_file = fopen(novoarquivo, "wb"); //Abre o novo arquivo em modo de escrida binaria
+    if (new_file == NULL) { //tratamento de erro
         perror("Error opening output file");
         fclose(new_file);
         return;
     }
 
-    escrever_arquivo(tamanho, filesize, trash, buffer, huff, new_file);
+    escrever_arquivo(tamanho, filesize, trash, buffer, huff, new_file); //escreve o arquivo no novo arquivo
 
     fclose(new_file);
     free(buffer);
