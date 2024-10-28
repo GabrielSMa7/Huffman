@@ -144,11 +144,11 @@ int main() {
             lista = add_linked_list(lista, num); //adicionar o número aleatorio gerado a lista
             arvore = add_binary_tree(arvore, num); //adicionar o número aleatorio gerado a árvore
         }
-        printf("Lista encadeada: ");
-        print_linked_list(lista);// Imprimir lista 
-        printf("Arvore binaria: "); 
-        print_binary_tree(arvore);//imprime a árvore em ordem
-        printf("\n");
+        //printf("Lista encadeada: ");
+        //print_linked_list(lista);// Imprimir lista 
+        //printf("Arvore binaria: "); 
+        //print_binary_tree(arvore);//imprime a árvore em ordem
+        //printf("\n");
         int search_item;
         if(random == 1){
             search_item = used_numbers[rand() % size]; //procura por um valor aleatorio dos valores aleatorios gerados (gera um resultado da área do Big O)
@@ -156,18 +156,18 @@ int main() {
         else{
             search_item = used_numbers[size - 1]; //procura o ultimo item (gera um resultado da linear do Big O)
         }
-        printf("Procurando o item: %d\n", search_item);
+        //printf("Procurando o item: %d\n", search_item);
         linked_list_comparison[size - min_size] = list_seach(lista, search_item, 0); // Buscar o número na lista e contar comparações
         binary_tree_comparison[size - min_size] = binary_tree_seach(arvore, search_item, 0); // Buscar o número na árvore e contar comparações
-        printf("Numero de comparacoes ate achar\nNa Lista encadeada: %d\nNa Arvore de busca binaria: %d\n\n", linked_list_comparison[size - min_size], binary_tree_comparison[size - min_size]);
+        //printf("Numero de comparacoes ate achar\nNa Lista encadeada: %d\nNa Arvore de busca binaria: %d\n\n", linked_list_comparison[size - min_size], binary_tree_comparison[size - min_size]);
     }
-    printf("resultados da comparacao\nNa lista encadeada: ");
-    for(int i = 0; i < (max_size - min_size + 1); i++){
-        printf("L(%d) = %d ", (i + 1), linked_list_comparison[i]);
-    }
-    printf("\n\nNa Arvore de busca binaria: ");
-    for(int i = 0; i < (max_size - min_size + 1); i++){
-        printf("T(%d) = %d ", (i + 1), binary_tree_comparison[i]);
-    }
+    //printf("resultados da comparacao\nNa lista encadeada: ");
+    //for(int i = 0; i < (max_size - min_size + 1); i++){
+        //printf("L(%d) = %d ", (i + 1), linked_list_comparison[i]);
+    //}
+    //printf("\n\nNa Arvore de busca binaria: ");
+    //for(int i = 0; i < (max_size - min_size + 1); i++){
+        //printf("T(%d) = %d ", (i + 1), binary_tree_comparison[i]);
+    //}
     save_in_file(linked_list_comparison, binary_tree_comparison, max_size , min_size);
 }
