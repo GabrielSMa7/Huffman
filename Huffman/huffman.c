@@ -35,7 +35,7 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo); //Descomp
 arvore* ler_arvore(unsigned char *buffer, int tamanho); //Lê a árvore em preordem
 void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore* huff, FILE* new_file); //Escreve o arquivo novo
 
-int main(){''
+int main(){
     int op; //Variavel para escolher se compacta ou descompacta
     char nomedoarquivo[TAM]; //Array com o nome do arquivo existente
     char novoarquivo[TAM]; //Array com o nome do arquivo que vai ser criado
