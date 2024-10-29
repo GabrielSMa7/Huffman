@@ -32,9 +32,10 @@ uint16_t swap_uint16(uint16_t val); //Resolve o edianess fazendo ele escrever o 
 
 //Descompactar
 void descompactar(const char *nomedoarquivo, const char *novoarquivo); //Descompacta o arquivo
+arvore* ler_arvore(unsigned char *buffer, int tamanho); //Lê a árvore em preordem
 void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore* huff, FILE* new_file); //Escreve o arquivo novo
 
-int main(){
+int main(){''
     int op; //Variavel para escolher se compacta ou descompacta
     char nomedoarquivo[TAM]; //Array com o nome do arquivo existente
     char novoarquivo[TAM]; //Array com o nome do arquivo que vai ser criado
@@ -333,17 +334,7 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
 }
 
 void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list){
-    int profundidade;
-    char **dicionario;
-    char *codificado;
-    long filesize;
     FILE *file, *new_file;
-    size_t current;
-    uint8_t trash;
-    uint16_t tamanho;
-    unsigned char bit_no_buffer = 0;
-    int bit_count = 0;
-    long total_bits = 0;
 
     //Leitura do arquivo
 
@@ -354,7 +345,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     }
 
     fseek(file, 0, SEEK_END); //Salta o ponteiro para o final do arquivo
-    filesize = ftell(file); //Quarda a posição atual do arquivo que no caso é o final logo quarda o tamanho do arquivo
+    long filesize = ftell(file); //Quarda a posição atual do arquivo que no caso é o final logo quarda o tamanho do arquivo
     rewind(file); //Retorna para o começo do arquivo
 
     unsigned char *buffer = (unsigned char*) malloc(filesize); //Aloca mémoria do buffer
@@ -365,7 +356,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
         return;
     }
     
-    current = fread(buffer, 1, filesize, file); //Lê o conteudo do arquivo e salva no buffer
+    size_t current = fread(buffer, 1, filesize, file); //Lê o conteudo do arquivo e salva no buffer
     if(current != filesize){ //tratamento de erro
         perror("Erro ao ler o arquivo: ");
         free(buffer);
@@ -397,9 +388,9 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
 
     arvore_de_huffman(list); //Cria a arvore de huffman
 
-    profundidade = altura((*list)->raiz);
+    int profundidade = altura((*list)->raiz);
 
-    dicionario = alocar_dicionario(profundidade);
+    char **dicionario = alocar_dicionario(profundidade);
 
     criar_dicionario(dicionario, (*list)->raiz, "", profundidade);
     
@@ -424,6 +415,10 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     int sobra = 0;
     escrever_arvore(new_file, (*list)->raiz, &sobra); //Escreve a árvore no novo arquivo
     
+    unsigned char bit_no_buffer = 0;
+    int bit_count = 0;
+    long total_bits = 0;
+
     for(long i = 0; i < filesize; i++){
         char *code = dicionario[buffer[i]];
         for(long j = 0; code[j]; j++){
@@ -447,8 +442,8 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     }
 
     //Calcular e escrever os metadados
-    tamanho = tamanho_arvore((*list)->raiz) + 1 + sobra;
-    trash = (8 - (total_bits % 8)) % 8;
+    uint16_t tamanho = tamanho_arvore((*list)->raiz) + 1 + sobra;
+    uint8_t trash = (8 - (total_bits % 8)) % 8;
 
     fseek(new_file, 0, SEEK_SET);
     escrever_metadados(new_file, tamanho, trash);
@@ -500,13 +495,8 @@ void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore
 }
 
 void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda vamos mudar isso
-    FILE *file;
-    FILE *new_file;
-    arvore *aux;
+    FILE *file, *new_file;
     arvore *huff = NULL;
-    size_t current;
-    uint8_t trash;
-    uint16_t tamanho;
 
     //Leitura do arquivo
 
@@ -528,7 +518,7 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda v
         return;
     }
 
-    current = fread(buffer, 1, filesize, file); //Salva os dados do arquivo no buffer
+    size_t current = fread(buffer, 1, filesize, file); //Salva os dados do arquivo no buffer
     if(current != filesize){ //Tratamento de erro
         perror("Erro ao ler o arquivo: ");
         free(buffer);
@@ -537,8 +527,8 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda v
     }
 
     uint16_t metadados = (uint16_t) (buffer[0] << 8) | buffer[1];
-    trash = (buffer[0] >> 5);
-    tamanho = metadados & 0x1FFF;
+    uint8_t trash = (buffer[0] >> 5);
+    uint16_t tamanho = metadados & 0x1FFF;
 
     huff = ler_arvore(buffer + 2, tamanho);
 
