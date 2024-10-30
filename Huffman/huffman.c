@@ -406,7 +406,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     }
 
     //Reservar espaço para os metadados
-    fseek(new_file, sizeof(uint16_t), SEEK_SET);
+    fseek(new_file, sizeof(uint16_t), SEEK_SET); //salta para o segundo byte do arquivo
 
     int sobra = 0;
     escrever_arvore(new_file, (*list)->raiz, &sobra); //Escreve a árvore no novo arquivo
@@ -441,7 +441,7 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     uint16_t tamanho = tamanho_arvore((*list)->raiz) + 1 + sobra;
     uint8_t trash = (8 - (total_bits % 8)) % 8;
 
-    fseek(new_file, 0, SEEK_SET);
+    fseek(new_file, 0, SEEK_SET); //salta para o byter inicial
     escrever_metadados(new_file, tamanho, trash);
 
     fclose(new_file);
