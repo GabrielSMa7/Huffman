@@ -324,10 +324,6 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
             aux->prox = new;
         }
 
-        free(primeiro->raiz->rep);
-        free(segundo->raiz->rep);
-        free(primeiro->raiz);
-        free(segundo->raiz);
         free(primeiro); //Free para evitar memory leak
         free(segundo);
     }
