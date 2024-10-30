@@ -125,7 +125,7 @@ void escrever_metadados(FILE *arquivo, uint16_t arv_tam, uint8_t padding){
 }
 
 char** alocar_dicionario(int profundidade){ //Aloca mémoria para o dicionario baseado na profundidade da árvore já que é isso que diz quantos bits o novo valor vai ter
-    char **dicionario; //Um array de ponteiro
+    char **dicionario; //Um array de array
     dicionario = malloc(sizeof(char*) * TAM); //Aloca mémoria com tamanho de char vezes 256 para o dicionario
 
     for(int i = 0; i < TAM; i++){
