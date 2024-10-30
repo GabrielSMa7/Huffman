@@ -311,17 +311,20 @@ void arvore_de_huffman(lista **head){ //Pega os dois primeiros itens da lista e 
         new->raiz->rep = malloc(sizeof(int));
         *((int*)new->raiz->rep) = *((int*)primeiro->raiz->rep) + *((int*)segundo->raiz->rep); //O novo valor de rep é a soma dos rep do primeiro intem e do segundo
 
-        if(*head == NULL || *((int*)(*head)->raiz->rep) > *((int*)new->raiz->rep)){
+        if(*head == NULL || *((int*)(*head)->raiz->rep) > *((int*)new->raiz->rep)){ //Verifica se a lista está vazia ou o primeiro item da lista é maior
             new->prox = *head;
             *head = new;
+            //se isso acontecer ele vai botar na frente de qualquer forma
         }
-        else{
+        else{//se a lista tiver cheia e o primeiro for menor
             aux = *head;
             while(aux->prox != NULL && *((int*)aux->prox->raiz->rep) <= *((int*)new->raiz->rep)){
                 aux = aux->prox;
             }
             new->prox = aux->prox;
             aux->prox = new;
+
+            //procura aonde ele pode colocar
         }
 
         free(primeiro); //Free para evitar memory leak
@@ -411,20 +414,20 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     int sobra = 0;
     escrever_arvore(new_file, (*list)->raiz, &sobra); //Escreve a árvore no novo arquivo
     
-    unsigned char bit_no_buffer = 0;
-    int bit_count = 0;
-    long total_bits = 0;
+    unsigned char bit_no_buffer = 0;//saber qual bit estamos escrevendo
+    int bit_count = 0;//quantos bits escrevemos
+    long total_bits = 0;//total de bits que precisamos escrever
 
-    for(long i = 0; i < filesize; i++){
-        char *code = dicionario[buffer[i]];
-        for(long j = 0; code[j]; j++){
-            if(code[j] == '1') {
+    for(long i = 0; i < filesize; i++){//i é o tamanho do arquivo
+        char *code = dicionario[buffer[i]];//ficar mais fácil de manipular nosso dicionário
+        for(long j = 0; code[j]; j++){//vai até o final do array dicionário para escrever
+            if(code[j] == '1') {//verifica se é 1 ou 0 na árvore 
                 bit_no_buffer |= (1 << (7 - bit_count));
             }
             bit_count++;
             total_bits++;
 
-            if(bit_count == 8){
+            if(bit_count == 8){//quando escrevermos um byte a gente vai escrever ele completo no arquivo
                 fwrite(&bit_no_buffer, 1, 1, new_file);
                 bit_no_buffer = 0;
                 bit_count = 0;
@@ -433,16 +436,16 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
     }
 
     //Escrever os bits restantes, se houver
-    if(bit_count > 0){
+    if(bit_count  >0){
         fwrite(&bit_no_buffer, 1, 1, new_file);
     }
 
-    //Calcular e escrever os metadados
+    //Calcular os cabeçalho
     uint16_t tamanho = tamanho_arvore((*list)->raiz) + 1 + sobra;
     uint8_t trash = (8 - (total_bits % 8)) % 8;
 
-    fseek(new_file, 0, SEEK_SET); //salta para o byter inicial
-    escrever_metadados(new_file, tamanho, trash);
+    fseek(new_file, 0, SEEK_SET); //salta para o byte inicial
+    escrever_metadados(new_file, tamanho, trash);//escrever cabeça~ho
 
     fclose(new_file);
     free(buffer);
