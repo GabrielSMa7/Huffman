@@ -217,31 +217,31 @@ void escrever_arvore(FILE *arquivo, arvore *raiz, int *tam){
 arvore* ler_arvore(unsigned char *buffer, int tamanho){
     static int posicao = 0;
     
-    if (posicao >= tamanho){
+    if (posicao >= tamanho){//se não tivermos algo pra ler vai retornar nulo (fim da função)
         return NULL;
     }
 
     arvore *no = criar_arvore('\0', NULL, NULL); //Cria uma árvore sem char
 
-    no->rep = malloc(sizeof(int));
-    *((int*)no->rep) = 1;
+    no->rep = malloc(sizeof(int));//nas repetições da árvore
+    *((int*)no->rep) = 1;//só pra n dar memory leak KKK
 
-    if (buffer[posicao] == '*'){
+    if (buffer[posicao] == '*'){//o buffer (arquivo compactado) vai ter um aterisco, logo, ele será um nó interno 
         posicao++;
         no->chr = malloc(sizeof(unsigned char)); //Aloca tamanho de char
         *(unsigned char*)no->chr = '*'; //Muda o char da árvore para *
         no->esq = ler_arvore(buffer, tamanho);
         no->dir = ler_arvore(buffer, tamanho);
     } 
-    else{
+    else{//caso seja uma folha
         if (buffer[posicao] == '\\'){
-            posicao++;
-            if (posicao >= tamanho){
+            posicao++;//pula o // e lê o próximo
+            if (posicao >= tamanho){//só caso a posição tenha passado do tamanho
                 free(no);
                 return NULL;
             }
         }
-        no->chr = malloc(sizeof(unsigned char));
+        no->chr = malloc(sizeof(unsigned char));//aloca o char
         *(unsigned char*)no->chr = buffer[posicao]; //Muda o char da árvore para o char do buffer
         posicao++;
     }
@@ -457,11 +457,11 @@ void compactar(const char *nomedoarquivo, const char *novoarquivo, lista **list)
 }
 
 void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore* huff, FILE* new_file){
-    arvore* aux = huff;
+    arvore* aux = huff;//para caminhar pela árvore
     unsigned char byte;
 
-    for(long i = tamanho + 2; i < filesize; i++){
-        byte = buffer[i];
+    for(long i = tamanho + 2; i < filesize; i++){// é +2 pq ele pula o cabeçalho
+        byte = buffer[i];//pegar o buffer
         if(i < filesize - 1){ //Verifica se não é o ultimo byte do arquivo
             for (int i = 7; i >= 0; i--){
                 if ((byte & (1 << i)) != 0){ //Se o bite for 1 ele vai pra direita
@@ -476,8 +476,8 @@ void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore
                 }
             }
         }
-        else{
-            for (int i = 7; i >= trash; i--){ //Caso seja o ultimo byte ele só ler até o trash
+        else{//quando for o último
+            for (int i = 7; i >= trash; i--){ //Caso seja o ultimo byte ele só ler até o trash do final
                 if((byte & (1 << i)) != 0){ //Se o bite for 1 ele vai pra direita
                     aux = aux->dir;
                 } 
@@ -493,7 +493,7 @@ void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore
     }
 }
 
-void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda vamos mudar isso
+void descompactar(const char *nomedoarquivo, const char *novoarquivo){
     FILE *file, *new_file;
     arvore *huff = NULL;
 
@@ -525,9 +525,9 @@ void descompactar(const char *nomedoarquivo, const char *novoarquivo){ //Ainda v
         return;
     }
 
-    uint16_t metadados = (uint16_t) (buffer[0] << 8) | buffer[1];
-    uint8_t trash = (buffer[0] >> 5);
-    uint16_t tamanho = metadados & 0x1FFF;
+    uint16_t metadados = (uint16_t) (buffer[0] << 8) | buffer[1];//lê o cabeçalho
+    uint8_t trash = (buffer[0] >> 5);//final do arquivo que não precisamos ler mais
+    uint16_t tamanho = metadados & 0x1FFF;//sabe o tamanho e depois exclui o trash
 
     huff = ler_arvore(buffer + 2, tamanho);
 
