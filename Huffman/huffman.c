@@ -464,7 +464,7 @@ void escrever_arquivo(int tamanho, int filesize, int trash, char *buffer, arvore
                 if ((byte & (1 << i)) != 0){ //Se o bite for 1 ele vai pra direita
                     aux = aux->dir;
                 } 
-                else { //Se o bite for 1 ele vai pra direita
+                else { //Se o bite for 0 ele vai pra esquerda
                     aux = aux->esq;
                 }
                 if (aux->esq == NULL && aux->dir == NULL){ //Verifica se é folha
